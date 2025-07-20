@@ -6,7 +6,10 @@ This repository contains an AI-powered product development toolkit with speciali
 ## Project Structure
 - `/personality/` - AI agent role prompts for product development workflow
 - `/sparc_tools/` - Development tools documentation (MCP, infrastructure, protocols)
-- `/plans/` - Project implementation plans and progress tracking
+- `/plans/` - Project implementation plans and progress tracking. This directory contains the following plans:
+  - `implementation-plan.md`: The main, multi-phase plan for developing the learning portal.
+  - `tech_choices.md`: The single source of truth for all technology stack decisions.
+  - `visual-asset-plan.md`: The plan for generating and managing visual assets for the project.
 - `/live-coding/` - Live development sessions and prototypes
 
 ## Build/Test Commands
@@ -161,7 +164,7 @@ Update `/plans/tech_choices.md` when:
 When using personality prompts from `/personality/`:
 1. **Product Manager** creates PRD → save to `/plans/product-requirements.md`
 2. **Solution Architect** creates architecture → save to `/plans/architecture-guide.md`
-3. **Data Architect** creates schema → save to `/plans/database-design.md`
+3. **Data Architect** creates schema → save to `/live-coding/DA.md`
 4. **API Developer** creates API spec → save to `/plans/api-specification.md`
 5. **Planner** creates implementation plan → save to `/plans/implementation-plan.md`
 6. **Prompt Engineer** evaluates tech choices → update `/plans/tech_choices.md`
@@ -187,7 +190,7 @@ For each coding session:
 ## Best Practices Enforcement
 
 ### Development Standards
-- **Test-Driven Development**: Write tests before implementation where applicable
+- **Test-Driven Development (TDD)**: Write tests before implementation. All new code should be accompanied by corresponding tests.
 - **Code Reviews**: Mandatory peer review for all code changes
 - **Continuous Integration**: Automated testing on every commit
 - **Documentation**: Update documentation with every feature

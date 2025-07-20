@@ -38,6 +38,19 @@ Establish the foundational frontend architecture with responsive design, compone
 - [ ] Configure Vercel deployment pipeline with preview deployments (Medium)
 - [ ] Set up environment variable management (.env.local, .env.production) (Easy)
 
+#### **1.2 Code Structure (Week 1)**
+- [ ] Create the initial code structure in `/live-coding/src/` (Easy)
+  - `/app`: Contains all the routes, including API routes and UI pages.
+    - `/(auth)`: Group for authentication-related pages (login, signup).
+    - `/(main)`: Group for the main application pages (dashboard, courses).
+    - `/api`: For all backend API endpoints.
+  - `/components`: For reusable React components.
+    - `/ui`: For primitive, reusable UI components (e.g., Button, Input).
+    - `/shared`: For more complex components shared across different pages.
+  - `/lib`: For shared utilities, helpers, and libraries.
+  - `/hooks`: For custom React hooks.
+  - `/styles`: For global styles.
+
 #### **1.2 Design System and Component Library (Week 2)**
 - [ ] Create design tokens (colors, typography, spacing, breakpoints) (Medium)
 - [ ] Build core UI components (Button, Input, Card, Modal, Navigation) (Medium)
