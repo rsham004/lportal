@@ -2,7 +2,7 @@
 
 import { useAuth, RedirectToSignIn } from '@clerk/nextjs'
 import { ReactNode } from 'react'
-import { Loading } from '../ui/Loading'
+import { Spinner } from '../ui/Loading'
 
 interface ProtectedRouteProps {
   children: ReactNode
@@ -21,7 +21,14 @@ export function ProtectedRoute({
 
   // Show loading state while auth is loading
   if (!isLoaded) {
-    return loadingComponent || <Loading />
+    return loadingComponent || (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <Spinner size="lg" />
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    )
   }
 
   // Redirect to sign in if not authenticated

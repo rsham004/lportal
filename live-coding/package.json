@@ -20,6 +20,7 @@
     "test:ci": "jest --ci --coverage --watchAll=false"
   },
   "dependencies": {
+    "@clerk/nextjs": "^5.7.1",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
     "class-variance-authority": "^0.7.1",
