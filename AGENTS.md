@@ -61,6 +61,34 @@ Follow these principles for the **Python + FastAPI + SQLModel** stack:
 - Add comprehensive docstrings for all public APIs and complex functions
 - Use async/await for I/O operations where beneficial
 
+## Technology Choices Management
+
+### Tech Choices Documentation
+- **ALWAYS** maintain `/plans/tech_choices.md` as the single source of truth for technology decisions
+- **Update during planning phase** whenever technology choices are made, changed, or validated
+- **Include rationale** for each technology selection with benefits, costs, and alternatives considered
+- **Track decision timeline** with dates and decision makers
+- **Document integration complexity** and cost implications for each choice
+
+### Tech Choices Update Protocol
+Update `/plans/tech_choices.md` when:
+- **New technology is selected** or existing choice is changed
+- **Alternative technologies are evaluated** (document comparison results)
+- **Cost implications change** (pricing updates, usage scaling)
+- **Integration challenges discovered** during implementation
+- **Performance benchmarks completed** (update with actual metrics)
+- **Risk assessment changes** (new risks identified or mitigated)
+
+### Tech Choices Content Requirements
+- **Decision Status**: Selected, Under Evaluation, Rejected (with reasons)
+- **Rationale**: Why this technology was chosen over alternatives
+- **Key Benefits**: Specific advantages for the learning portal use case
+- **Integration Complexity**: Low/Medium/High with explanation
+- **Cost Impact**: Specific pricing information and scaling considerations
+- **Alternatives Considered**: Other options evaluated and why they were not selected
+- **Risk Assessment**: Potential issues and mitigation strategies
+- **Implementation Notes**: Lessons learned during actual implementation
+
 ## AI Agent Workflow Integration
 When using personality prompts from `/personality/`:
 1. **Product Manager** creates PRD → save to `/plans/product-requirements.md`
@@ -68,16 +96,19 @@ When using personality prompts from `/personality/`:
 3. **Data Architect** creates schema → save to `/plans/database-design.md`
 4. **API Developer** creates API spec → save to `/plans/api-specification.md`
 5. **Planner** creates implementation plan → save to `/plans/implementation-plan.md`
-6. **All agents** update their respective plans as implementation progresses
+6. **Prompt Engineer** evaluates tech choices → update `/plans/tech_choices.md`
+7. **All agents** update their respective plans as implementation progresses
 
 ## Development Session Protocol
 For each coding session:
 1. Review current plan in `/plans/` directory
-2. Update plan with session objectives
-3. Implement features following the plan
-4. Document progress, decisions, and any plan deviations
-5. Update plan with completion status and next steps
-6. Commit both code changes AND updated plans
+2. **Check `/plans/tech_choices.md`** for relevant technology decisions and constraints
+3. Update plan with session objectives
+4. Implement features following the plan and technology choices
+5. **Update tech choices** if implementation reveals new insights, costs, or integration issues
+6. Document progress, decisions, and any plan deviations
+7. Update plan with completion status and next steps
+8. Commit both code changes AND updated plans (including tech_choices.md if modified)
 
 ## Notes
 - All personality prompts are optimized for **FastAPI + SQLModel + SQLite** stack
