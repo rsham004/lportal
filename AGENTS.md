@@ -11,13 +11,14 @@ This repository contains an AI-powered product development toolkit with speciali
   - `tech_choices.md`: The single source of truth for all technology stack decisions.
   - `visual-asset-plan.md`: The plan for generating and managing visual assets for the project.
 - `/live-coding/` - Live development sessions and prototypes
+- `/live-coding/tech_docs/` - **MANDATORY REFERENCE**: Comprehensive technical documentation for approved technologies
 
 ## Build/Test Commands
-Technology stack focus: **Python + FastAPI + SQLModel + SQLite** (prototype)
-- `python -m pytest` / `python -m pytest path/to/test_file.py::test_function` (Python testing)
-- `uvicorn main:app --reload` (FastAPI development server)
-- `docker build -t app .` / `docker run -p 8000:8000 app` (Docker containerization)
-- `npm run build` / `npm run dev` (if Node.js frontend is added)
+Technology stack focus: **Next.js 14 + React 18 + Supabase + PostgreSQL + GraphQL** (as defined in SA.md)
+- `npm run dev` / `npm run build` (Next.js development and production builds)
+- `npm test` / `npm run test:e2e` (React/Next.js testing)
+- `supabase start` / `supabase db reset` (Local Supabase development)
+- `docker build -t app .` / `docker run -p 3000:3000 app` (Docker containerization)
 
 ## Plan Management Guidelines
 
@@ -122,15 +123,15 @@ The project follows a **strict phase gate approach** where each phase must be 10
 - **Focus Management**: Clear focus indicators
 
 ## Code Style Guidelines
-Follow these principles for the **Python + FastAPI + SQLModel** stack:
-- Use consistent indentation (4 spaces for Python, 2 for frontend)
-- Follow Python naming conventions (snake_case for variables/functions, PascalCase for classes)
-- Add comprehensive type annotations using Python type hints and SQLModel
+Follow these principles for the **Next.js 14 + React 18 + TypeScript** stack:
+- Use consistent indentation (2 spaces for TypeScript/JavaScript)
+- Follow TypeScript naming conventions (camelCase for variables/functions, PascalCase for components/types)
+- Add comprehensive type annotations using TypeScript and strict mode
 - Use descriptive variable and function names that reflect business logic
-- Handle errors gracefully with FastAPI exception handlers
-- Import organization: standard library, third-party (FastAPI, SQLModel), local imports
-- Add comprehensive docstrings for all public APIs and complex functions
-- Use async/await for I/O operations where beneficial
+- Handle errors gracefully with React Error Boundaries and try-catch blocks
+- Import organization: React imports, third-party libraries, local imports
+- Add comprehensive JSDoc comments for all public APIs and complex functions
+- Use async/await for asynchronous operations and proper error handling
 
 ## Technology Choices Management
 
@@ -174,18 +175,20 @@ When using personality prompts from `/personality/`:
 For each coding session:
 1. **Phase Gate Check**: Verify current phase completion status and requirements
 2. Review current plan in `/plans/` directory
-3. **Check `/plans/tech_choices.md`** for relevant technology decisions and constraints
-4. **Quality Gate Validation**: Ensure previous tasks meet quality standards before starting new work
-5. Update plan with session objectives and expected outcomes
-6. Implement features following the plan, technology choices, and best practices
-7. **Continuous Testing**: Run automated tests throughout development
-8. **Code Review**: Submit code for review before marking tasks complete
-9. **Update tech choices** if implementation reveals new insights, costs, or integration issues
-10. Document progress, decisions, and any plan deviations with lessons learned
-11. **Quality Validation**: Verify all quality standards met for completed tasks
-12. Update plan with completion status and next steps
-13. **Phase Gate Assessment**: Check if phase completion criteria are met
-14. Commit both code changes AND updated plans (including tech_choices.md if modified)
+3. **MANDATORY: Check `/live-coding/tech_docs/`** for technical documentation of approved technologies
+4. **Check `/plans/tech_choices.md`** for relevant technology decisions and constraints
+5. **Technology Compliance**: ONLY use technologies documented in SA.md and tech_docs/
+6. **Quality Gate Validation**: Ensure previous tasks meet quality standards before starting new work
+7. Update plan with session objectives and expected outcomes
+8. Implement features following the plan, technology choices, and best practices
+9. **Continuous Testing**: Run automated tests throughout development
+10. **Code Review**: Submit code for review before marking tasks complete
+11. **Update tech choices** if implementation reveals new insights, costs, or integration issues
+12. Document progress, decisions, and any plan deviations with lessons learned
+13. **Quality Validation**: Verify all quality standards met for completed tasks
+14. Update plan with completion status and next steps
+15. **Phase Gate Assessment**: Check if phase completion criteria are met
+16. Commit both code changes AND updated plans (including tech_choices.md if modified)
 
 ## Best Practices Enforcement
 
@@ -209,9 +212,43 @@ For each coding session:
 - **Business Metrics**: User satisfaction, system reliability, scalability validation
 - **Continuous Improvement**: Regular retrospectives and process optimization
 
+## Technology Compliance Requirements
+
+### MANDATORY Technology Stack (as defined in SA.md)
+**ONLY the following technologies may be used:**
+- **Frontend**: Next.js 14, React 18, TypeScript
+- **UI Framework**: Tailwind CSS, Headless UI
+- **State Management**: Zustand, TanStack Query (React Query)
+- **Backend**: Vercel/Supabase Edge Functions
+- **Database**: Supabase (PostgreSQL)
+- **ORM**: Prisma (TypeScript), SQLModel (Python prototyping only)
+- **Authentication**: Clerk
+- **Authorization**: CASL + Row Level Security (RLS)
+- **Video Delivery**: Mux
+- **Caching**: Redis
+- **API Design**: GraphQL
+- **Deployment**: Vercel
+
+### Technical Documentation Reference
+**ALWAYS reference `/live-coding/tech_docs/` before implementing:**
+- `nextjs-14-overview.md` - Next.js 14 features and best practices
+- `react-18-overview.md` - React 18 components, hooks, and patterns
+- `supabase-overview.md` - Database, auth, storage, realtime features
+- `postgresql-overview.md` - SQL features, indexing, performance
+- `graphql-overview.md` - Schema design, queries, mutations, best practices
+
+### Technology Restrictions
+**FORBIDDEN**: Any technology not explicitly listed in SA.md or tech_docs/
+- No alternative frameworks (Vue, Angular, Svelte, etc.)
+- No alternative databases (MongoDB, MySQL, etc.)
+- No alternative auth providers (Auth0, Firebase Auth, etc.)
+- No alternative deployment platforms (AWS, GCP, Azure, etc.)
+- No alternative state management (Redux, MobX, etc.)
+
 ## Notes
-- All personality prompts are optimized for **FastAPI + SQLModel + SQLite** stack
+- All personality prompts are optimized for **Next.js 14 + React 18 + Supabase** stack
 - MCP tools available for enhanced AI development workflows
 - Plans should be living documents that evolve with the project
 - Verbose documentation is preferred over minimal notes
 - Track both successes and failures for future reference
+- **CRITICAL**: Technology compliance is mandatory - any deviation requires SA.md update first
