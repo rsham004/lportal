@@ -1,4 +1,6 @@
-export default function DashboardPage() {
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
+
+function DashboardContent() {
   return (
     <div>
       <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
@@ -25,5 +27,13 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function DashboardPage() {
+  return (
+    <ProtectedRoute>
+      <DashboardContent />
+    </ProtectedRoute>
   )
 }
