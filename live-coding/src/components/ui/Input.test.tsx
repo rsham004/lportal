@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Input } from './Input';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 describe('Input Component', () => {
   it('renders with default props', () => {
@@ -142,5 +143,111 @@ describe('Input Component', () => {
     expect(input).toHaveAttribute('aria-label', 'Email address');
     expect(input).toHaveAttribute('aria-describedby', 'email-help');
     expect(input).toHaveAttribute('required');
+  });
+
+  describe('Enhanced Features', () => {
+    it('renders with start icon', () => {
+      render(
+        <Input 
+          startIcon={<MagnifyingGlassIcon data-testid="start-icon" />}
+          data-testid="input"
+        />
+      );
+      
+      expect(screen.getByTestId('start-icon')).toBeInTheDocument();
+      expect(screen.getByTestId('input')).toHaveClass('pl-10');
+    });
+
+    it('renders with end icon', () => {
+      render(
+        <Input 
+          endIcon={<MagnifyingGlassIcon data-testid="end-icon" />}
+          data-testid="input"
+        />
+      );
+      
+      expect(screen.getByTestId('end-icon')).toBeInTheDocument();
+      expect(screen.getByTestId('input')).toHaveClass('pr-10');
+    });
+
+    it('shows helper text', () => {
+      render(<Input helperText="This is helper text" />);
+      expect(screen.getByText('This is helper text')).toBeInTheDocument();
+    });
+
+    it('prioritizes error over helper text', () => {
+      render(
+        <Input 
+          error="This is an error" 
+          helperText="This is helper text" 
+        />
+      );
+      
+      expect(screen.getByText('This is an error')).toBeInTheDocument();
+      expect(screen.queryByText('This is helper text')).not.toBeInTheDocument();
+    });
+
+    describe('Password input', () => {
+      it('renders password toggle button', () => {
+        render(<Input type="password" data-testid="input" />);
+        
+        expect(screen.getByLabelText('Show password')).toBeInTheDocument();
+        expect(screen.getByTestId('input')).toHaveAttribute('type', 'password');
+      });
+
+      it('toggles password visibility', async () => {
+        const user = userEvent.setup();
+        
+        render(<Input type="password" data-testid="input" />);
+        
+        const input = screen.getByTestId('input');
+        const toggleButton = screen.getByLabelText('Show password');
+        
+        expect(input).toHaveAttribute('type', 'password');
+        
+        await user.click(toggleButton);
+        
+        expect(input).toHaveAttribute('type', 'text');
+        expect(screen.getByLabelText('Hide password')).toBeInTheDocument();
+        
+        await user.click(toggleButton);
+        
+        expect(input).toHaveAttribute('type', 'password');
+        expect(screen.getByLabelText('Show password')).toBeInTheDocument();
+      });
+
+      it('does not render end icon when password toggle is present', () => {
+        render(
+          <Input 
+            type="password"
+            endIcon={<MagnifyingGlassIcon data-testid="end-icon" />}
+            data-testid="input"
+          />
+        );
+        
+        expect(screen.queryByTestId('end-icon')).not.toBeInTheDocument();
+        expect(screen.getByLabelText('Show password')).toBeInTheDocument();
+      });
+
+      it('password toggle button has proper accessibility attributes', () => {
+        render(<Input type="password" />);
+        
+        const toggleButton = screen.getByLabelText('Show password');
+        expect(toggleButton).toHaveAttribute('aria-label', 'Show password');
+        expect(toggleButton).toHaveAttribute('tabIndex', '-1');
+      });
+    });
+
+    it('sets aria-describedby when error or helper text is present', () => {
+      const { rerender } = render(<Input error="Error message" id="test-input" />);
+      
+      let input = screen.getByRole('textbox');
+      expect(input).toHaveAttribute('aria-describedby', 'test-input-description');
+
+      rerender(<Input helperText="Helper text" id="test-input" />);
+      
+      input = screen.getByRole('textbox');
+      expect(input).toHaveAttribute('aria-describedby', 'test-input-description');
+    });
   });
 });
