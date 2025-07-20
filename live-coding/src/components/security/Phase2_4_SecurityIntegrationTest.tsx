@@ -1,24 +1,619 @@
 /**
  * Phase 2.4 Security Integration Test Component
  * 
- * Comprehensive integration test demonstrating all Phase 2.4 security
- * components working together with existing Phase 1, 2.1, 2.2, and 2.3 systems.
+ * Comprehensive security testing component that validates all security measures
+ * are properly integrated and functioning within the application context.
+ * 
+ * This component demonstrates integration between Phase 1 UI components and Phase 2 security features.
  */
 
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Button } from '../ui/Button'
-import { Card } from '../ui/Card'
-import { Input } from '../ui/Input'
-import { UserRole } from '../../lib/authorization/roles'
+import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
+import { Input } from '@/components/ui/Input'
+import { Form, FormField, FormLabel, FormError, useForm } from '@/components/ui/Form'
 
-// Mock security implementations for demonstration
-interface SecurityTestResult {
-  component: string
-  status: 'pass' | 'fail' | 'warning'
+// Security utilities
+import { generateCSRFToken, validateCSRFToken } from '@/lib/security/csrf-protection'
+import { checkRateLimit } from '@/lib/security/rate-limiting'
+import { RedisCache } from '@/lib/security/redis-cache'
+import { encryptCookie, decryptCookie } from '@/lib/security/secure-cookies'
+import { SecurityMonitor } from '@/lib/security/security-monitoring'
+
+export interface SecurityTestResult {
+  test: string
+  status: 'pass' | 'fail' | 'pending'
   message: string
-  details?: Record<string, any>
+  timestamp: Date
+}
+
+export interface SecurityMetrics {
+  csrfTokensGenerated: number
+  rateLimitChecks: number
+  cacheOperations: number
+  securityEvents: number
+  cookieOperations: number
+}
+
+export function Phase2_4_SecurityIntegrationTest() {
+  const [testResults, setTestResults] = useState<SecurityTestResult[]>([])
+  const [metrics, setMetrics] = useState<SecurityMetrics>({
+    csrfTokensGenerated: 0,
+    rateLimitChecks: 0,
+    cacheOperations: 0,
+    securityEvents: 0,
+    cookieOperations: 0,
+  })
+  const [isRunning, setIsRunning] = useState(false)
+  const [currentCSRFToken, setCurrentCSRFToken] = useState<string>('')
+  const [formSubmissions, setFormSubmissions] = useState<number>(0)
+  
+  const { register, handleSubmit, state, reset } = useForm()
+
+  const addTestResult = (result: Omit<SecurityTestResult, 'timestamp'>) => {
+    setTestResults(prev => [...prev, { ...result, timestamp: new Date() }])
+  }
+
+  const updateMetrics = (key: keyof SecurityMetrics, increment = 1) => {
+    setMetrics(prev => ({ ...prev, [key]: prev[key] + increment }))
+  }
+
+  // Generate CSRF token on component mount (simulating real app behavior)
+  useEffect(() => {
+    const token = generateCSRFToken()
+    setCurrentCSRFToken(token)
+    updateMetrics('csrfTokensGenerated')
+  }, [])
+
+  const runCSRFTests = async () => {
+    try {
+      // Test CSRF token generation
+      const token = generateCSRFToken()
+      updateMetrics('csrfTokensGenerated')
+      
+      if (token && token.length > 0) {
+        addTestResult({
+          test: 'CSRF Token Generation',
+          status: 'pass',
+          message: 'CSRF token generated successfully'
+        })
+      } else {
+        addTestResult({
+          test: 'CSRF Token Generation',
+          status: 'fail',
+          message: 'Failed to generate CSRF token'
+        })
+        return
+      }
+
+      // Test CSRF token validation
+      const isValid = validateCSRFToken(token)
+      if (isValid) {
+        addTestResult({
+          test: 'CSRF Token Validation',
+          status: 'pass',
+          message: 'CSRF token validation successful'
+        })
+      } else {
+        addTestResult({
+          test: 'CSRF Token Validation',
+          status: 'fail',
+          message: 'CSRF token validation failed'
+        })
+      }
+
+      // Test invalid token rejection
+      const invalidToken = 'invalid-token'
+      const isInvalidRejected = !validateCSRFToken(invalidToken)
+      if (isInvalidRejected) {
+        addTestResult({
+          test: 'CSRF Invalid Token Rejection',
+          status: 'pass',
+          message: 'Invalid CSRF token properly rejected'
+        })
+      } else {
+        addTestResult({
+          test: 'CSRF Invalid Token Rejection',
+          status: 'fail',
+          message: 'Invalid CSRF token was not rejected'
+        })
+      }
+    } catch (error) {
+      addTestResult({
+        test: 'CSRF Protection',
+        status: 'fail',
+        message: `CSRF test failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      })
+    }
+  }
+
+  const runRateLimitTests = async () => {
+    try {
+      const clientId = 'test-client-123'
+      
+      // Test rate limit check
+      const result = await checkRateLimit(clientId, 'api', 10, 60)
+      updateMetrics('rateLimitChecks')
+      
+      if (result.allowed) {
+        addTestResult({
+          test: 'Rate Limit Check',
+          status: 'pass',
+          message: `Rate limit check passed. Remaining: ${result.remaining}`
+        })
+      } else {
+        addTestResult({
+          test: 'Rate Limit Check',
+          status: 'fail',
+          message: 'Rate limit exceeded unexpectedly'
+        })
+      }
+
+      // Test multiple rapid requests
+      const rapidRequests = await Promise.all([
+        checkRateLimit(clientId, 'api', 2, 60),
+        checkRateLimit(clientId, 'api', 2, 60),
+        checkRateLimit(clientId, 'api', 2, 60),
+      ])
+      updateMetrics('rateLimitChecks', 3)
+
+      const blockedRequest = rapidRequests.find(r => !r.allowed)
+      if (blockedRequest) {
+        addTestResult({
+          test: 'Rate Limit Enforcement',
+          status: 'pass',
+          message: 'Rate limiting properly enforced on rapid requests'
+        })
+      } else {
+        addTestResult({
+          test: 'Rate Limit Enforcement',
+          status: 'fail',
+          message: 'Rate limiting not enforced on rapid requests'
+        })
+      }
+    } catch (error) {
+      addTestResult({
+        test: 'Rate Limiting',
+        status: 'fail',
+        message: `Rate limit test failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      })
+    }
+  }
+
+  const runCacheTests = async () => {
+    try {
+      const cache = new RedisCache()
+      const testKey = 'test-key-123'
+      const testValue = { data: 'test-value', timestamp: Date.now() }
+
+      // Test cache set
+      await cache.set(testKey, testValue, 60)
+      updateMetrics('cacheOperations')
+      
+      addTestResult({
+        test: 'Cache Set Operation',
+        status: 'pass',
+        message: 'Cache set operation successful'
+      })
+
+      // Test cache get
+      const retrievedValue = await cache.get(testKey)
+      updateMetrics('cacheOperations')
+      
+      if (retrievedValue && JSON.stringify(retrievedValue) === JSON.stringify(testValue)) {
+        addTestResult({
+          test: 'Cache Get Operation',
+          status: 'pass',
+          message: 'Cache get operation successful'
+        })
+      } else {
+        addTestResult({
+          test: 'Cache Get Operation',
+          status: 'fail',
+          message: 'Cache get operation failed or returned incorrect data'
+        })
+      }
+
+      // Test cache delete
+      await cache.delete(testKey)
+      updateMetrics('cacheOperations')
+      
+      const deletedValue = await cache.get(testKey)
+      if (!deletedValue) {
+        addTestResult({
+          test: 'Cache Delete Operation',
+          status: 'pass',
+          message: 'Cache delete operation successful'
+        })
+      } else {
+        addTestResult({
+          test: 'Cache Delete Operation',
+          status: 'fail',
+          message: 'Cache delete operation failed'
+        })
+      }
+    } catch (error) {
+      addTestResult({
+        test: 'Redis Cache',
+        status: 'fail',
+        message: `Cache test failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      })
+    }
+  }
+
+  const runCookieTests = async () => {
+    try {
+      const testData = { userId: 'user123', role: 'student', timestamp: Date.now() }
+      
+      // Test cookie encryption
+      const encryptedCookie = encryptCookie(testData)
+      updateMetrics('cookieOperations')
+      
+      if (encryptedCookie && encryptedCookie !== JSON.stringify(testData)) {
+        addTestResult({
+          test: 'Cookie Encryption',
+          status: 'pass',
+          message: 'Cookie encryption successful'
+        })
+      } else {
+        addTestResult({
+          test: 'Cookie Encryption',
+          status: 'fail',
+          message: 'Cookie encryption failed'
+        })
+        return
+      }
+
+      // Test cookie decryption
+      const decryptedData = decryptCookie(encryptedCookie)
+      updateMetrics('cookieOperations')
+      
+      if (decryptedData && JSON.stringify(decryptedData) === JSON.stringify(testData)) {
+        addTestResult({
+          test: 'Cookie Decryption',
+          status: 'pass',
+          message: 'Cookie decryption successful'
+        })
+      } else {
+        addTestResult({
+          test: 'Cookie Decryption',
+          status: 'fail',
+          message: 'Cookie decryption failed or returned incorrect data'
+        })
+      }
+
+      // Test invalid cookie handling
+      const invalidDecryption = decryptCookie('invalid-encrypted-data')
+      if (!invalidDecryption) {
+        addTestResult({
+          test: 'Invalid Cookie Handling',
+          status: 'pass',
+          message: 'Invalid cookie properly rejected'
+        })
+      } else {
+        addTestResult({
+          test: 'Invalid Cookie Handling',
+          status: 'fail',
+          message: 'Invalid cookie was not rejected'
+        })
+      }
+    } catch (error) {
+      addTestResult({
+        test: 'Secure Cookies',
+        status: 'fail',
+        message: `Cookie test failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      })
+    }
+  }
+
+  const runSecurityMonitoringTests = async () => {
+    try {
+      const monitor = new SecurityMonitor()
+      
+      // Test security event logging
+      await monitor.logSecurityEvent('test-event', {
+        userId: 'test-user',
+        action: 'test-action',
+        severity: 'low',
+        metadata: { test: true }
+      })
+      updateMetrics('securityEvents')
+      
+      addTestResult({
+        test: 'Security Event Logging',
+        status: 'pass',
+        message: 'Security event logged successfully'
+      })
+
+      // Test threat detection
+      const threatResult = await monitor.detectThreat('suspicious-activity', {
+        userId: 'test-user',
+        ipAddress: '192.168.1.1',
+        userAgent: 'test-agent'
+      })
+      updateMetrics('securityEvents')
+      
+      if (threatResult) {
+        addTestResult({
+          test: 'Threat Detection',
+          status: 'pass',
+          message: 'Threat detection system operational'
+        })
+      } else {
+        addTestResult({
+          test: 'Threat Detection',
+          status: 'fail',
+          message: 'Threat detection system failed'
+        })
+      }
+
+      // Test alert system
+      const alertSent = await monitor.sendAlert('test-alert', {
+        severity: 'medium',
+        message: 'Test security alert',
+        timestamp: new Date()
+      })
+      updateMetrics('securityEvents')
+      
+      if (alertSent) {
+        addTestResult({
+          test: 'Security Alert System',
+          status: 'pass',
+          message: 'Security alert system operational'
+        })
+      } else {
+        addTestResult({
+          test: 'Security Alert System',
+          status: 'fail',
+          message: 'Security alert system failed'
+        })
+      }
+    } catch (error) {
+      addTestResult({
+        test: 'Security Monitoring',
+        status: 'fail',
+        message: `Security monitoring test failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      })
+    }
+  }
+
+  const runAllTests = async () => {
+    setIsRunning(true)
+    setTestResults([])
+    setMetrics({
+      csrfTokensGenerated: 0,
+      rateLimitChecks: 0,
+      cacheOperations: 0,
+      securityEvents: 0,
+      cookieOperations: 0,
+    })
+
+    addTestResult({
+      test: 'Security Integration Test Suite',
+      status: 'pending',
+      message: 'Starting comprehensive security tests...'
+    })
+
+    try {
+      await runCSRFTests()
+      await runRateLimitTests()
+      await runCacheTests()
+      await runCookieTests()
+      await runSecurityMonitoringTests()
+
+      const passedTests = testResults.filter(r => r.status === 'pass').length
+      const totalTests = testResults.filter(r => r.status !== 'pending').length
+
+      addTestResult({
+        test: 'Security Integration Test Suite',
+        status: passedTests === totalTests ? 'pass' : 'fail',
+        message: `Completed: ${passedTests}/${totalTests} tests passed`
+      })
+    } catch (error) {
+      addTestResult({
+        test: 'Security Integration Test Suite',
+        status: 'fail',
+        message: `Test suite failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      })
+    } finally {
+      setIsRunning(false)
+    }
+  }
+
+  // Secure form submission handler (demonstrates CSRF + rate limiting integration)
+  const handleSecureFormSubmit = async (data: any) => {
+    try {
+      // Check rate limit before processing
+      const rateLimitResult = await checkRateLimit('form-submission', 'form', 5, 300) // 5 submissions per 5 minutes
+      updateMetrics('rateLimitChecks')
+
+      if (!rateLimitResult.allowed) {
+        addTestResult({
+          test: 'Form Rate Limiting',
+          status: 'pass',
+          message: 'Form submission blocked by rate limiting'
+        })
+        return
+      }
+
+      // Validate CSRF token
+      if (!validateCSRFToken(currentCSRFToken)) {
+        addTestResult({
+          test: 'Form CSRF Protection',
+          status: 'fail',
+          message: 'Form submission blocked by invalid CSRF token'
+        })
+        return
+      }
+
+      // Log security event
+      const monitor = new SecurityMonitor()
+      await monitor.logSecurityEvent('form-submission', {
+        userId: 'test-user',
+        action: 'secure-form-submit',
+        severity: 'low',
+        metadata: { formData: data }
+      })
+      updateMetrics('securityEvents')
+
+      setFormSubmissions(prev => prev + 1)
+      
+      addTestResult({
+        test: 'Secure Form Submission',
+        status: 'pass',
+        message: `Form submitted successfully with security validation (submission #${formSubmissions + 1})`
+      })
+
+      // Generate new CSRF token for next submission
+      const newToken = generateCSRFToken()
+      setCurrentCSRFToken(newToken)
+      updateMetrics('csrfTokensGenerated')
+
+      reset()
+    } catch (error) {
+      addTestResult({
+        test: 'Secure Form Submission',
+        status: 'fail',
+        message: `Form submission failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      })
+    }
+  }
+
+  const getStatusColor = (status: SecurityTestResult['status']) => {
+    switch (status) {
+      case 'pass': return 'text-green-600'
+      case 'fail': return 'text-red-600'
+      case 'pending': return 'text-yellow-600'
+      default: return 'text-gray-600'
+    }
+  }
+
+  const getStatusIcon = (status: SecurityTestResult['status']) => {
+    switch (status) {
+      case 'pass': return '✅'
+      case 'fail': return '❌'
+      case 'pending': return '⏳'
+      default: return '❓'
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold">Security Integration Test</h3>
+          <Button 
+            onClick={runAllTests} 
+            disabled={isRunning}
+            className="min-w-[120px]"
+          >
+            {isRunning ? 'Running...' : 'Run Tests'}
+          </Button>
+        </div>
+
+        {/* Metrics Dashboard */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+          <div className="text-center p-3 bg-blue-50 rounded">
+            <div className="text-2xl font-bold text-blue-600">{metrics.csrfTokensGenerated}</div>
+            <div className="text-sm text-blue-800">CSRF Tokens</div>
+          </div>
+          <div className="text-center p-3 bg-green-50 rounded">
+            <div className="text-2xl font-bold text-green-600">{metrics.rateLimitChecks}</div>
+            <div className="text-sm text-green-800">Rate Checks</div>
+          </div>
+          <div className="text-center p-3 bg-purple-50 rounded">
+            <div className="text-2xl font-bold text-purple-600">{metrics.cacheOperations}</div>
+            <div className="text-sm text-purple-800">Cache Ops</div>
+          </div>
+          <div className="text-center p-3 bg-orange-50 rounded">
+            <div className="text-2xl font-bold text-orange-600">{metrics.cookieOperations}</div>
+            <div className="text-sm text-orange-800">Cookie Ops</div>
+          </div>
+          <div className="text-center p-3 bg-red-50 rounded">
+            <div className="text-2xl font-bold text-red-600">{metrics.securityEvents}</div>
+            <div className="text-sm text-red-800">Security Events</div>
+          </div>
+        </div>
+
+        {/* Interactive Security Demo Form */}
+        <Card className="p-4 mb-6 bg-gray-50">
+          <h4 className="font-semibold mb-3">Interactive Security Demo</h4>
+          <p className="text-sm text-gray-600 mb-4">
+            This form demonstrates real-time integration of CSRF protection, rate limiting, and security monitoring with Phase 1 UI components.
+          </p>
+          
+          <Form onSubmit={handleSubmit(handleSecureFormSubmit)}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField>
+                <FormLabel htmlFor="demo-name">Name</FormLabel>
+                <Input
+                  id="demo-name"
+                  {...register('name', { required: 'Name is required' })}
+                  placeholder="Enter your name"
+                />
+                <FormError name="name" />
+              </FormField>
+              
+              <FormField>
+                <FormLabel htmlFor="demo-email">Email</FormLabel>
+                <Input
+                  id="demo-email"
+                  type="email"
+                  {...register('email', { required: 'Email is required' })}
+                  placeholder="Enter your email"
+                />
+                <FormError name="email" />
+              </FormField>
+            </div>
+            
+            <div className="flex items-center justify-between mt-4">
+              <div className="text-xs text-gray-500">
+                CSRF Token: {currentCSRFToken.substring(0, 20)}...
+              </div>
+              <Button type="submit" disabled={state.isSubmitting} size="sm">
+                {state.isSubmitting ? 'Submitting...' : 'Submit Securely'}
+              </Button>
+            </div>
+          </Form>
+          
+          <div className="mt-2 text-xs text-gray-500">
+            Form submissions: {formSubmissions} | Rate limit: 5 per 5 minutes
+          </div>
+        </Card>
+
+        {/* Test Results */}
+        <div className="space-y-2 max-h-96 overflow-y-auto">
+          {testResults.map((result, index) => (
+            <div 
+              key={index}
+              className="flex items-center justify-between p-3 border rounded-lg"
+            >
+              <div className="flex items-center space-x-3">
+                <span className="text-lg">{getStatusIcon(result.status)}</span>
+                <div>
+                  <div className="font-medium">{result.test}</div>
+                  <div className={`text-sm ${getStatusColor(result.status)}`}>
+                    {result.message}
+                  </div>
+                </div>
+              </div>
+              <div className="text-xs text-gray-500">
+                {result.timestamp.toLocaleTimeString()}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {testResults.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            Click "Run Tests" to start the security integration verification
+          </div>
+        )}
+      </Card>
+    </div>
+  )
 }
 
 interface SecurityMetrics {
