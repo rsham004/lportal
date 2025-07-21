@@ -938,49 +938,48 @@ Configure production infrastructure services and deploy the learning portal to p
   - **Achievement**: Interactive setup-infrastructure.sh script with guided process
   - **Implementation**: Prerequisites check, tool installation, step-by-step checklist
   - **Coverage**: Complete setup workflow with help and troubleshooting guidance
-- [ ] Configure Supabase production database (Complex) - **PENDING USER ACTION**
-  - Create Supabase project and deploy database schema
-  - Configure Row Level Security policies
-  - Set up storage buckets and access policies
-  - Configure authentication integration with Clerk
-- [ ] Set up Clerk authentication provider (Medium) - **PENDING USER ACTION**
-  - Create Clerk application with social login providers
-  - Configure webhooks for user synchronization
-  - Set up role-based access control integration
-  - Test authentication flows and user management
-- [ ] Configure Mux video infrastructure (Medium) - **PENDING USER ACTION**
-  - Set up Mux account and API credentials
-  - Configure video processing and streaming
-  - Set up live streaming capabilities
-  - Configure webhooks for video events
-- [ ] Deploy Redis cache service (Easy) - **PENDING USER ACTION**
-  - Set up Redis instance (Upstash recommended)
-  - Configure session storage and rate limiting
-  - Test cache performance and connectivity
-  - Set up monitoring and alerts
+- [ ] Configure Supabase production database (Complex) - **PENDING USER ACTION** (15 minutes)
+  - **Action**: Follow STEP_BY_STEP_SETUP_GUIDE.md Section 1
+  - **Steps**: Create account → Create project → Deploy SQL schema → Configure storage
+  - **Result**: Production database with complete schema and RLS policies
+  - **Validation**: Database tables created, storage buckets configured
+- [ ] Set up Clerk authentication provider (Medium) - **PENDING USER ACTION** (10 minutes)
+  - **Action**: Follow STEP_BY_STEP_SETUP_GUIDE.md Section 2
+  - **Steps**: Create account → Configure social providers → Set up webhooks
+  - **Result**: Authentication with Google, LinkedIn, GitHub social login
+  - **Validation**: Social login working, webhooks configured
+- [ ] Configure Mux video infrastructure (Medium) - **PENDING USER ACTION** (10 minutes)
+  - **Action**: Follow STEP_BY_STEP_SETUP_GUIDE.md Section 3
+  - **Steps**: Create account → Get API credentials → Configure webhooks
+  - **Result**: Video processing and live streaming infrastructure
+  - **Validation**: API keys obtained, webhooks configured
+- [ ] Deploy Redis cache service (Easy) - **PENDING USER ACTION** (5 minutes)
+  - **Action**: Follow STEP_BY_STEP_SETUP_GUIDE.md Section 4
+  - **Steps**: Create Upstash account → Create database → Get connection URL
+  - **Result**: Redis cache for session storage and rate limiting
+  - **Validation**: Redis connection URL obtained and tested
 
 #### **5.2 Production Deployment (Week 15)** ⏳ **READY TO BEGIN**
-- [ ] Configure Vercel deployment environment (Medium) - **PENDING USER ACTION**
-  - Set up Vercel project and link repository
-  - Configure all environment variables
-  - Set up custom domain and SSL certificates
-  - Configure deployment settings and optimizations
-- [ ] Deploy application to production (Medium) - **PENDING USER ACTION**
-  - Run production deployment with all services
-  - Verify all integrations are working correctly
-  - Test critical user flows end-to-end
-  - Monitor deployment health and performance
-- [ ] Configure production monitoring (Medium) - **READY**
-  - Enable real-time monitoring dashboards
-  - Set up alerting and notification systems
-  - Configure error tracking and incident response
-  - Validate monitoring data and metrics
-- [ ] Perform production validation testing (Complex) - **READY**
-  - Test all authentication flows with real providers
-  - Validate video upload and streaming functionality
-  - Test real-time features and collaboration tools
-  - Verify PWA installation and offline capabilities
-  - Load test with realistic user scenarios
+- [ ] Configure Vercel deployment environment (Medium) - **PENDING USER ACTION** (10 minutes)
+  - **Action**: Follow STEP_BY_STEP_SETUP_GUIDE.md Section 6
+  - **Steps**: Install Vercel CLI → Link project → Set environment variables → Deploy
+  - **Result**: Production deployment on Vercel with all services integrated
+  - **Validation**: Application accessible at production URL
+- [ ] Deploy application to production (Medium) - **PENDING USER ACTION** (5 minutes)
+  - **Action**: Run `vercel --prod` after environment setup
+  - **Steps**: Production deployment → Update webhook URLs → Verify integrations
+  - **Result**: Live production application with all features operational
+  - **Validation**: All services connected and working in production
+- [ ] Configure production monitoring (Medium) - **READY** (Automatic)
+  - **Action**: Monitoring automatically enabled after deployment
+  - **Steps**: Monitoring dashboard → Alert configuration → Performance tracking
+  - **Result**: Real-time observability with automated incident response
+  - **Validation**: Monitoring dashboard accessible and collecting data
+- [ ] Perform production validation testing (Complex) - **PENDING USER ACTION** (10 minutes)
+  - **Action**: Follow STEP_BY_STEP_SETUP_GUIDE.md Section 7
+  - **Steps**: Test authentication → Test video upload → Test PWA → Performance check
+  - **Result**: Validated production deployment with all features working
+  - **Validation**: All critical user flows tested and operational
 
 ### **Phase 5 Deliverables**
 - ✅ Complete infrastructure setup documentation and guides
