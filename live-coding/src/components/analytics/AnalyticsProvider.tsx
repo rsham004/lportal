@@ -176,7 +176,7 @@ interface AnalyticsContextType {
   filters: AnalyticsFilters;
   refreshData: (filters?: AnalyticsFilters) => Promise<void>;
   exportData: (section: string, format?: 'csv' | 'excel' | 'pdf') => Promise<void>;
-  getDetailedReport: (type: string, id: string) => Promise<any>;
+  getDetailedReport: (type: string, id: string) => Promise<unknown>;
   subscribeToRealTime: () => void;
   unsubscribeFromRealTime: () => void;
   setFilters: (filters: AnalyticsFilters) => void;
@@ -195,11 +195,6 @@ interface AnalyticsProviderProps {
 }
 
 export function AnalyticsProvider({ children, currentUser, value }: AnalyticsProviderProps) {
-  // If value is provided (for testing), use it directly
-  if (value) {
-    return <AnalyticsContext.Provider value={value}>{children}</AnalyticsContext.Provider>;
-  }
-
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -210,6 +205,11 @@ export function AnalyticsProvider({ children, currentUser, value }: AnalyticsPro
   const subscriptionManager = useRef<GraphQLSubscriptionManager>();
   const websocket = useRef<WebSocket>();
   const refreshInterval = useRef<NodeJS.Timeout>();
+
+  // If value is provided (for testing), use it directly
+  if (value) {
+    return <AnalyticsContext.Provider value={value}>{children}</AnalyticsContext.Provider>;
+  }
 
   // Initialize analytics system
   useEffect(() => {
