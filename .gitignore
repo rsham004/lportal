@@ -1,0 +1,76 @@
+# Learning Portal - Security-First .gitignore
+# =============================================
+
+# CRITICAL: Personal Information Protection
+# =========================================
+# Treat all personal data like API secrets
+*.email
+*.personal
+*-personal.*
+user-info.*
+personal-config.*
+setup-user-data.*
+
+# Email addresses and personal identifiers
+emails.txt
+user-emails.*
+personal-identifiers.*
+
+# Setup automation sensitive data
+setup-config.json
+user-config.json
+personal-info.json
+credentials.json
+setup-progress.json
+setup-state.json
+
+# Temporary setup files
+setup-temp/
+.setup-cache/
+setup-logs/
+temp-setup/
+
+# Service-specific credential files
+supabase-credentials.*
+clerk-credentials.*
+mux-credentials.*
+vercel-credentials.*
+upstash-credentials.*
+
+# Environment files (all variants)
+.env
+.env.*
+!.env.example
+
+# API keys and secrets
+*.key
+*.secret
+*.token
+api-keys.*
+secrets.*
+
+# Development and testing
+node_modules/
+.DS_Store
+*.log
+*.tmp
+
+# IDE and editor files
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+Thumbs.db
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# Backup files
+*.bak
+*.backup
+*~

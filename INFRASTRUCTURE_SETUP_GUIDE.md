@@ -173,13 +173,13 @@ CREATE POLICY "Users can upload to their folder" ON storage.objects
 **Google OAuth:**
 1. Go to [Google Cloud Console](https://console.cloud.google.com)
 2. Create new project or select existing
-3. Enable Google+ API
+3. Configure OAuth consent screen if prompted
 4. Create OAuth 2.0 credentials
 5. Add authorized redirect URI: `https://[clerk-domain]/v1/oauth_callback`
 6. Copy Client ID and Secret to Clerk
 
 **LinkedIn OAuth:**
-1. Go to [LinkedIn Developer Portal](https://developer.linkedin.com)
+1. Go to [LinkedIn Developer Portal](https://developer.linkedin.com/apps)
 2. Create new app
 3. Add redirect URL: `https://[clerk-domain]/v1/oauth_callback`
 4. Copy Client ID and Secret to Clerk
@@ -346,8 +346,7 @@ REDIS_URL=redis://...
 REDIS_TOKEN=your_token
 
 # Application
-NEXTAUTH_URL=https://your-domain.com
-NEXTAUTH_SECRET=your_secret_key
+NEXT_PUBLIC_APP_URL=https://your-domain.com
 NODE_ENV=production
 ```
 

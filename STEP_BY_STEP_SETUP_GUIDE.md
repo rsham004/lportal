@@ -35,7 +35,7 @@ This guide provides detailed, copy-paste instructions to set up all infrastructu
 
 ### 1.3 Deploy Database Schema
 1. **Go to**: SQL Editor in your Supabase dashboard
-2. **Click**: "New query"
+2. **Click**: "New snippet"
 3. **Copy and paste** this entire SQL script:
 
 ```sql
@@ -343,21 +343,81 @@ CREATE TRIGGER handle_updated_at BEFORE UPDATE ON public.courses
    - Name: `video-thumbnails`, Public: ✓
 
 ### 1.5 Configure Storage Policies
-1. **Go to**: Storage > Policies
-2. **Click**: "New policy" for `course-materials` bucket
-3. **Add this policy**:
-   ```sql
-   CREATE POLICY "Course materials are publicly accessible" ON storage.objects
-     FOR SELECT USING (bucket_id = 'course-materials');
-   ```
-4. **Add policy for user-uploads**:
-   ```sql
-   CREATE POLICY "Users can upload to their folder" ON storage.objects
-     FOR INSERT WITH CHECK (
-       bucket_id = 'user-uploads' AND 
-       auth.uid()::text = (storage.foldername(name))[1]
-     );
-   ```
+
+#### Policy 1: Course Materials (Public Read Access)
+1. **Go to**: Storage > Policies in your Supabase dashboard
+2. **Click**: "New policy"
+3. **Fill in the form**:
+   - **Policy name**: `Public read access for course materials`
+   - **Allowed operation**: `SELECT` (check only this box)
+   - **Target roles**: `public` (select from dropdown)
+   - **USING expression**: 
+     ```sql
+     bucket_id = 'course-materials'
+     ```
+4. **Click**: "Review" then "Save policy"
+
+#### Policy 2: Course Materials (Authenticated Upload)
+1. **Click**: "New policy" again
+2. **Fill in the form**:
+   - **Policy name**: `Authenticated users can upload course materials`
+   - **Allowed operation**: `INSERT` (check only this box)
+   - **Target roles**: `authenticated` (select from dropdown)
+   - **WITH CHECK expression**:
+     ```sql
+     bucket_id = 'course-materials'
+     ```
+3. **Click**: "Review" then "Save policy"
+
+#### Policy 3: User Uploads (Private Upload to Own Folder)
+1. **Click**: "New policy" again
+2. **Fill in the form**:
+   - **Policy name**: `Users can upload to their own folder`
+   - **Allowed operation**: `INSERT` (check only this box)
+   - **Target roles**: `authenticated` (select from dropdown)
+   - **WITH CHECK expression**:
+     ```sql
+     bucket_id = 'user-uploads' AND (storage.foldername(name))[1] = auth.uid()::text
+     ```
+3. **Click**: "Review" then "Save policy"
+
+#### Policy 4: User Uploads (Private Read from Own Folder)
+1. **Click**: "New policy" again
+2. **Fill in the form**:
+   - **Policy name**: `Users can read their own uploads`
+   - **Allowed operation**: `SELECT` (check only this box)
+   - **Target roles**: `authenticated` (select from dropdown)
+   - **USING expression**:
+     ```sql
+     bucket_id = 'user-uploads' AND (storage.foldername(name))[1] = auth.uid()::text
+     ```
+3. **Click**: "Review" then "Save policy"
+
+#### Policy 5: Video Thumbnails (Public Read Access)
+1. **Click**: "New policy" again
+2. **Fill in the form**:
+   - **Policy name**: `Public read access for video thumbnails`
+   - **Allowed operation**: `SELECT` (check only this box)
+   - **Target roles**: `public` (select from dropdown)
+   - **USING expression**:
+     ```sql
+     bucket_id = 'video-thumbnails'
+     ```
+3. **Click**: "Review" then "Save policy"
+
+#### Policy 6: Video Thumbnails (Authenticated Upload)
+1. **Click**: "New policy" again
+2. **Fill in the form**:
+   - **Policy name**: `Authenticated users can upload thumbnails`
+   - **Allowed operation**: `INSERT` (check only this box)
+   - **Target roles**: `authenticated` (select from dropdown)
+   - **WITH CHECK expression**:
+     ```sql
+     bucket_id = 'video-thumbnails'
+     ```
+3. **Click**: "Review" then "Save policy"
+
+**Verify Storage Policies**: You should now have 6 policies total - 2 for each bucket (read and write access).
 
 ✅ **Supabase Setup Complete!**
 
@@ -403,7 +463,7 @@ CREATE TRIGGER handle_updated_at BEFORE UPDATE ON public.courses
 9. **Click**: "Apply changes"
 
 #### LinkedIn OAuth Setup:
-1. **Go to**: [LinkedIn Developer Portal](https://developer.linkedin.com)
+1. **Go to**: [LinkedIn Developer Portal](https://developer.linkedin.com/apps)
 2. **Click**: "Create app"
 3. **Fill in**:
    - App name: Learning Portal

@@ -27,6 +27,26 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
+.env.production
+.env.staging
+
+# Security: Personal information and credentials
+setup-config.json
+user-config.json
+personal-info.json
+credentials.json
+setup-progress.json
+*.credentials
+*.secrets
+*-secrets.*
+*-config.local.*
+
+# Setup automation files (may contain sensitive data)
+setup-state/
+temp-setup/
+.setup-cache/
+setup-logs/
 
 # vercel
 .vercel

@@ -36,7 +36,7 @@ This guide provides corrected, detailed instructions based on current UI pattern
 
 ### 1.3 Deploy Database Schema
 1. **Go to**: SQL Editor (in left sidebar, looks like </> icon)
-2. **Click**: "New query" button (+ icon)
+2. **Click**: "New snippet" button (+ icon)
 3. **Delete any default content** in the editor
 4. **Copy and paste** this entire SQL script:
 
@@ -398,14 +398,13 @@ CREATE TRIGGER handle_updated_at BEFORE UPDATE ON public.courses
 3. **You'll see**: "Add your Google OAuth credentials"
 4. **Open new tab**: Go to [Google Cloud Console](https://console.cloud.google.com)
 5. **Create/Select Project**: Create new project or select existing
-6. **Enable APIs**: Go to "APIs & Services" → "Library" → Search "Google+ API" → Enable
-7. **Create Credentials**: Go to "APIs & Services" → "Credentials" → "Create Credentials" → "OAuth 2.0 Client IDs"
-8. **Configure OAuth consent screen** (if prompted):
+6. **Configure OAuth consent screen** (if prompted):
    - User Type: External
    - App name: Learning Portal
    - User support email: Your email
    - Developer contact: Your email
-9. **Create OAuth Client**:
+7. **Create Credentials**: Go to "APIs & Services" → "Credentials" → "Create Credentials" → "OAuth 2.0 Client IDs"
+8. **Create OAuth Client**:
    - Application type: Web application
    - Name: Learning Portal
    - Authorized redirect URIs: Copy the redirect URI from Clerk (shown in the Google config page)
