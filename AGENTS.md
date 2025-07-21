@@ -6,12 +6,19 @@ This repository contains an AI-powered product development toolkit with speciali
 ## Project Structure
 - `/personality/` - AI agent role prompts for product development workflow
 - `/sparc_tools/` - Development tools documentation (MCP, infrastructure, protocols)
-- `/plans/` - Project implementation plans and progress tracking. This directory contains the following plans:
-  - `implementation-plan.md`: The main, multi-phase plan for developing the learning portal.
-  - `tech_choices.md`: The single source of truth for all technology stack decisions.
-  - `visual-asset-plan.md`: The plan for generating and managing visual assets for the project.
+- `/plans/` - **SINGLE SOURCE**: All project implementation plans and progress tracking
+  - `implementation-plan.md`: The main, multi-phase plan for developing the learning portal
+  - `tech_choices.md`: The single source of truth for all technology stack decisions
+  - `visual-asset-plan.md`: The plan for generating and managing visual assets for the project
 - `/live-coding/` - Live development sessions and prototypes
-- `/live-coding/tech_docs/` - **MANDATORY REFERENCE**: Comprehensive technical documentation for approved technologies
+  - `/config/` - **NEW**: Centralized configuration management
+    - `/build/` - Build-related configs (Jest, Next.js, Tailwind, PostCSS)
+    - `/quality/` - Code quality configs (ESLint, Prettier, Lighthouse)
+    - `/deployment/` - Deployment configs (Vercel)
+    - `/typescript/` - TypeScript configuration
+  - `/src/` - Application source code
+  - `/tests/` - Comprehensive test suite (unit, integration, infrastructure)
+  - `/tech_docs/` - **MANDATORY REFERENCE**: Technical documentation for approved technologies
 
 ## Build/Test Commands
 Technology stack focus: **Next.js 14 + React 18 + Supabase + PostgreSQL + GraphQL** (as defined in SA.md)
@@ -22,10 +29,13 @@ Technology stack focus: **Next.js 14 + React 18 + Supabase + PostgreSQL + GraphQ
 
 ## Plan Management Guidelines
 
-### Plan Creation and Location
-- **ALWAYS** create plan.md files in the `/plans/` directory
-- Use descriptive filenames: `/plans/[project-name]-plan.md` or `/plans/feature-[name]-plan.md`
-- Each major feature or project phase should have its own plan file
+### **CRITICAL RESTRICTION: NO NEW PLAN FILES**
+- **NEVER** create new plan.md files - the project is in maintenance/testing phase
+- **ONLY UPDATE** existing plans in `/plans/` directory:
+  - `implementation-plan.md` - Update with testing progress and infrastructure setup
+  - `tech_choices.md` - Update with any configuration or deployment decisions
+  - `visual-asset-plan.md` - Update only if visual assets are modified
+- **FORBIDDEN**: Creating feature-specific plans, refactoring plans, or any new planning documents
 
 ### Plan Content Requirements
 Plans must be **verbose and comprehensive**, including:
@@ -45,14 +55,14 @@ Plans must be **verbose and comprehensive**, including:
 - Add new tasks discovered during implementation
 - Update difficulty estimates if they prove incorrect
 
-### Plan Update Triggers
-Update plans when:
-- Starting a new development session
-- Completing any task (no matter how small)
-- Encountering blockers or changing approach
-- Adding new requirements or scope changes
-- After code reviews or testing phases
-- At the end of each development day
+### Plan Update Triggers (RESTRICTED SCOPE)
+Update **EXISTING** plans only when:
+- **Testing Results**: Update implementation-plan.md with test outcomes and coverage
+- **Infrastructure Setup**: Update implementation-plan.md with deployment progress
+- **Configuration Changes**: Update tech_choices.md with config reorganization decisions
+- **Bug Fixes**: Update implementation-plan.md with critical fixes and resolutions
+- **Performance Issues**: Update implementation-plan.md with optimization results
+- **FORBIDDEN**: New feature planning, architectural changes, scope expansion
 
 ## Phased Development Approach
 
@@ -171,34 +181,55 @@ When using personality prompts from `/personality/`:
 6. **Prompt Engineer** evaluates tech choices → update `/plans/tech_choices.md`
 7. **All agents** update their respective plans as implementation progresses
 
-## Development Session Protocol
-For each coding session:
-1. **Phase Gate Check**: Verify current phase completion status and requirements
-2. Review current plan in `/plans/` directory
-3. **MANDATORY: Check `/live-coding/tech_docs/`** for technical documentation of approved technologies
-4. **Check `/plans/tech_choices.md`** for relevant technology decisions and constraints
-5. **Technology Compliance**: ONLY use technologies documented in SA.md and tech_docs/
-6. **Quality Gate Validation**: Ensure previous tasks meet quality standards before starting new work
-7. Update plan with session objectives and expected outcomes
-8. Implement features following the plan, technology choices, and best practices
-9. **Continuous Testing**: Run automated tests throughout development
-10. **Code Review**: Submit code for review before marking tasks complete
-11. **Update tech choices** if implementation reveals new insights, costs, or integration issues
-12. Document progress, decisions, and any plan deviations with lessons learned
-13. **Quality Validation**: Verify all quality standards met for completed tasks
-14. Update plan with completion status and next steps
-15. **Phase Gate Assessment**: Check if phase completion criteria are met
-16. Commit both code changes AND updated plans (including tech_choices.md if modified)
+## Post-Reorganization Testing Protocol
+
+### **MANDATORY TESTING AFTER CODE REORGANIZATION**
+After any significant code reorganization, file moves, or structural changes:
+
+1. **Configuration Validation**
+   - Verify all config files work from new locations
+   - Test build process: `npm run build`
+   - Test development server: `npm run dev`
+   - Validate TypeScript compilation: `npm run type-check`
+
+2. **Comprehensive Test Suite Execution**
+   - **Unit Tests**: `npm run test:unit` - All 83+ unit tests must pass
+   - **Integration Tests**: `npm run test:integration` - Cross-component functionality
+   - **Full Test Suite**: `npm run test:coverage` - Verify 90%+ coverage maintained
+   - **CI Tests**: `npm run test:ci` - Production-ready test validation
+
+3. **Cross-Phase Integration Verification**
+   - Run Phase Integration tests to verify all phases still work together
+   - Test authentication flows (Phase 2) with UI components (Phase 1)
+   - Verify content management (Phase 3) with authorization (Phase 2)
+   - Validate advanced features (Phase 4) with all previous phases
+
+4. **Infrastructure and Build Validation**
+   - Test infrastructure setup scripts: `./tests/infrastructure/validate-setup.sh`
+   - Verify Storybook builds: `npm run build-storybook`
+   - Validate linting and formatting: `npm run lint` and `npm run format:check`
+
+### **Development Session Protocol (MAINTENANCE PHASE)**
+For each coding session in maintenance/testing phase:
+1. **Configuration Check**: Verify all configs work from new `/config/` structure
+2. **Test Status Review**: Check which tests are failing after reorganization
+3. **MANDATORY: Run Tests First**: Execute test suite before any code changes
+4. **Fix Broken Tests**: Address any test failures caused by reorganization
+5. **Integration Validation**: Verify cross-component functionality still works
+6. **Performance Check**: Ensure reorganization didn't impact performance
+7. **Update Documentation**: Update only existing plans with testing results
+8. **Quality Gate**: All tests must pass before considering work complete
 
 ## Best Practices Enforcement
 
-### Development Standards
-- **Test-Driven Development (TDD)**: Write tests before implementation. All new code should be accompanied by corresponding tests.
-- **Code Reviews**: Mandatory peer review for all code changes
-- **Continuous Integration**: Automated testing on every commit
-- **Documentation**: Update documentation with every feature
-- **Security First**: Security considerations in every development decision
-- **Performance Monitoring**: Continuous performance tracking and optimization
+### Development Standards (MAINTENANCE PHASE)
+- **Test-First Approach**: Run existing tests before making any changes
+- **Regression Prevention**: Ensure reorganization doesn't break existing functionality
+- **Integration Validation**: Verify all 4 phases continue to work together seamlessly
+- **Configuration Management**: Maintain centralized config structure in `/config/`
+- **Documentation Updates**: Update only existing plans with testing and infrastructure progress
+- **Performance Monitoring**: Ensure reorganization maintains performance benchmarks
+- **Quality Gates**: 90%+ test coverage must be maintained after any changes
 
 ### Risk Management
 - **Phase Gate Reviews**: Technical, security, performance, and business reviews
